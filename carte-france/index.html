@@ -540,15 +540,10 @@ async function toggleCodes(){
 async function fetchJson(url){const r=await fetch(url);if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.json();}
 
 async function loadGeoJSON(){
-  // 1. Charger métropole
+  // 1. Charger métropole (contours simplifiés france-geojson)
+  // Remarque : geo.api.gouv.fr ne fournit pas de contours pour les départements (seulement pour les communes)
   let metroFeats=[];
-  try{
-    const g=await fetchJson('https://geo.api.gouv.fr/departements?fields=nom,code&format=geojson&geometry=contour');
-    if(g?.features?.length>90)metroFeats=g.features;
-  }catch(_){}
-  if(metroFeats.length<90){
-    try{const g=await fetchJson('https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/departements-version-simplifiee.geojson');metroFeats=g.features||[];}catch(_){}
-  }
+  try{const g=await fetchJson(`https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/departements-version-simplifiee.geojson`);metroFeats=g.features||[];}catch(_){}
 
   // Exclure les DOM-TOM de la liste métro (utiliser les données embarquées)
   const dtSet=new Set(Object.keys(DT));
